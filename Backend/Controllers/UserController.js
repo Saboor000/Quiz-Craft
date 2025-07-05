@@ -7,7 +7,7 @@ import nodemailer from "nodemailer";
 
 export const createToken = (id) => {
   try {
-    const secret = process.env.SECRET || "3nD$e5#FqRmF6kYgR@9VbFzT5jP!zH8L7Qw";
+    // const secret = process.env.SECRET || "3nD$e5#FqRmF6kYgR@9VbFzT5jP!zH8L7Qw";
     return jwt.sign({ id }, secret, { expiresIn: "3d" });
   } catch (error) {
     console.error("Error creating token:", error);
