@@ -4,7 +4,7 @@ import User from "./Models/UserModel.js"; // Your User model
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract JWT from the Authorization header
-  secretOrKey: process.env.SECRET || "3nD$e5#FqRmF6kYgR@9VbFzT5jP!zH8L7Qw", // Secret key to verify JWT
+  secretOrKey: process.env.SECRET, // Secret key to verify JWT
 };
 
 passport.use(
