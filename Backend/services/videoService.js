@@ -61,7 +61,7 @@ export const downloadOnlineVideo = async (url, outputPath) => {
     return new Promise((resolve, reject) => {
       writer.on("finish", () => resolve(outputPath));
       writer.on("error", (err) =>
-        reject(new Error(`Download failed: ${err.message}`))
+        reject(new Error(`Download failed: ${err.message}`)),
       );
     });
   } catch (err) {
@@ -121,13 +121,13 @@ export const transcribeAudio = (audioPath) => {
 
       const txtPath = path.join(
         outDir,
-        `${path.basename(audioPath, path.extname(audioPath))}.txt`
+        `${path.basename(audioPath, path.extname(audioPath))}.txt`,
       );
 
       fs.readFile(txtPath, "utf8", (err, data) => {
         if (err) {
           return reject(
-            new Error(`Could not read transcription file: ${err.message}`)
+            new Error(`Could not read transcription file: ${err.message}`),
           );
         }
         resolve(data);
