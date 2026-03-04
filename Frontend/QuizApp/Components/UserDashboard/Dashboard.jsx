@@ -526,7 +526,7 @@ const Dashboard = () => {
       // Additional check to match generateQuiz function
       if (selectedFile.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
         setSnackbarMessage(
-          `File size should not exceed ${MAX_FILE_SIZE_MB}MB.`
+          `File size should not exceed ${MAX_FILE_SIZE_MB}MB.`,
         );
         setOpenSnackbar(true);
         setIsLoading(false);
@@ -603,7 +603,7 @@ const Dashboard = () => {
       // Additional check to match generateQuiz function
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
         setSnackbarMessage(
-          `File size should not exceed ${MAX_FILE_SIZE_MB}MB.`
+          `File size should not exceed ${MAX_FILE_SIZE_MB}MB.`,
         );
         setOpenSnackbar(true);
         event.target.value = "";
@@ -632,7 +632,7 @@ const Dashboard = () => {
         setSnackbarMessage(
           error.message === "File is empty"
             ? "The file is empty. Please upload a file with content."
-            : "Error uploading file. Please try again."
+            : "Error uploading file. Please try again.",
         );
         setOpenSnackbar(true);
         event.target.value = "";
@@ -663,12 +663,12 @@ const Dashboard = () => {
     const thisWeekQuizzes = getQuizzesInRange(
       displayedQuizzes,
       lastWeek,
-      today
+      today,
     );
     const thisMonthQuizzes = getQuizzesInRange(
       displayedQuizzes,
       lastMonth,
-      today
+      today,
     );
     const olderQuizzes = getOlderQuizzes(displayedQuizzes, lastMonth);
 
@@ -769,7 +769,7 @@ const Dashboard = () => {
 
       // Show a confirmation dialog
       const confirmLeave = window.confirm(
-        "You must log out before leaving the dashboard. Would you like to log out?"
+        "You must log out before leaving the dashboard. Would you like to log out?",
       );
 
       if (confirmLeave) {
@@ -1083,8 +1083,8 @@ const Dashboard = () => {
                       {monthlyLoading
                         ? "Loading..."
                         : stats.monthlyImprovement >= 0
-                        ? `+${stats.monthlyImprovement}% from last month`
-                        : `${stats.monthlyImprovement}% from last month`}
+                          ? `+${stats.monthlyImprovement}% from last month`
+                          : `${stats.monthlyImprovement}% from last month`}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -1142,7 +1142,7 @@ const Dashboard = () => {
                         />
                         <span>
                           {`${Math.abs(
-                            overallPerformanceData.improvement
+                            overallPerformanceData.improvement,
                           ).toFixed(2)}% ${
                             overallPerformanceData.improvement >= 0
                               ? "improvement"
@@ -1247,10 +1247,9 @@ const Dashboard = () => {
                         bgcolor: inputType === "text" ? "#24A148" : "#fbfbfb",
                         borderRadius: 2,
                         boxShadow: "1 5px 5px rgba(0,0,0,0.5)",
-                        transition: "all 0.3s ease",
                         cursor: "pointer",
                         transition:
-                          "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                          "all 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                         "&:hover": {
                           transform: "translateY(-4px)",
                           boxShadow: "2px 5px 8px  rgba(0,0,0,0.7)",
@@ -1295,10 +1294,9 @@ const Dashboard = () => {
                         bgcolor: inputType === "video" ? "#24A148" : "#fbfbfb",
                         borderRadius: 2,
                         boxShadow: "1 5px 5px rgba(0,0,0,0.5)",
-                        transition: "all 0.3s ease",
                         cursor: "pointer",
                         transition:
-                          "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                          "all 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                         "&:hover": {
                           transform: "translateY(-4px)",
                           boxShadow: "5px 5px 8px  rgba(0,0,0,0.7)",
@@ -1343,10 +1341,9 @@ const Dashboard = () => {
                         bgcolor: inputType === "file" ? "#24A148" : "#fbfbfb",
                         borderRadius: 2,
                         boxShadow: "1 5px 5px rgba(0,0,0,0.5)",
-                        transition: "all 0.3s ease",
                         cursor: "pointer",
                         transition:
-                          "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                          "all 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                         "&:hover": {
                           transform: "translateY(-4px)",
                           boxShadow: "5px 5px 8px  rgba(0,0,0,0.7)",
@@ -2462,8 +2459,8 @@ const Dashboard = () => {
                                 quiz.score >= 80
                                   ? "success"
                                   : quiz.score >= 60
-                                  ? "warning"
-                                  : "error"
+                                    ? "warning"
+                                    : "error"
                               }
                               sx={{ fontWeight: 600 }}
                             />
