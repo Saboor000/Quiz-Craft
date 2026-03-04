@@ -573,11 +573,15 @@ const Dashboard = () => {
         setOpenSnackbar(true);
       }
     } catch (error) {
-      console.error("Error generating quiz:", error.response || error);
-      setSnackbarMessage(
-        error.response?.data?.message ||
-          "An error occurred while generating the quiz."
-      );
+      console.error("Error generating quiz:", error);
+      // Backend may return an object like { error: 'msg', stack: '...' }
+      const serverMessage =
+        (error && (error.error || error.message)) ||
+        (error?.response &&
+          (error.response.data?.error || error.response.data?.message)) ||
+        "An error occurred while generating the quiz.";
+
+      setSnackbarMessage(serverMessage);
       setOpenSnackbar(true);
     } finally {
       setIsLoading(false);

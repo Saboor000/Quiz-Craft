@@ -259,7 +259,7 @@ const getQuizResult = async (req, res) => {
   }
 };
 
-export const getRecentQuizAttempts = async (req, res) => {
+const getRecentQuizAttempts = async (req, res) => {
   try {
     const userId = req.params.userId;
     const recentResults = await QuizResult.find({ userId })
@@ -282,7 +282,7 @@ export const getRecentQuizAttempts = async (req, res) => {
   }
 };
 
-export const getAllQuizAttempts = async (req, res) => {
+const getAllQuizAttempts = async (req, res) => {
   try {
     const userId = req.params.userId;
 
@@ -523,4 +523,6 @@ export {
   getMonthlyProgress,
   getPerformanceAnalytics,
   getOverallPerformance,
+  getRecentQuizAttempts,
+  getAllQuizAttempts,
 };

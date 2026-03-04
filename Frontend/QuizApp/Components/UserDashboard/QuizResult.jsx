@@ -10,32 +10,18 @@ import {
   Divider,
   Button,
   Grid,
-  Chip,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  Container,
-  IconButton,
-  Tooltip,
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   ArrowBack as ArrowBackIcon,
-  Quiz as QuizIcon,
   Feedback as FeedbackIcon,
-  Assessment as AssessmentIcon,
-  AccessTime as AccessTimeIcon,
-  Person as PersonIcon,
 } from "@mui/icons-material";
-import {
-  fetchQuizResult,
-  fetchTodaysActivity,
-  fetchMonthlyQuizStats,
-  fetchPerformanceAnalytics,
-  getOverallPerformance,
-} from "../../../Apis/QuizResult.jsx";
+import { fetchQuizResult } from "../../../Apis/QuizResult.jsx";
 import DashboardHeader from "./DashboardHeader";
 
 const QuizResult = () => {

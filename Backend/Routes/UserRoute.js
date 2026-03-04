@@ -64,33 +64,7 @@ userRouter.get("/logout", (req, res) => {
   });
 });
 
-// Example of an Express route for OTP verification
-userRouter.post("/verify-otp", async (req, res) => {
-  const { email, otp } = req.body;
-
-  try {
-    // Verify OTP logic here (check the database or cache)
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    if (user.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
-    // Mark the user as verified and complete registration
-    user.isVerified = true;
-    await user.save();
-
-    res.json({
-      success: true,
-      message: "OTP verified successfully. Registration complete!",
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Route to get user details
 userRouter.get(
   "/details",
   passport.authenticate("jwt", { session: false }), // Passport JWT middleware
@@ -118,11 +92,12 @@ userRouter.put(
       await user.save();
       await sendOtpEmail(user.email, otp);
 
-      res
-        .status(200)
-        .json({ message: "OTP sent to your current email address." });
+      res.status(200).json({
+        success: true,
+        message: "OTP sent to your current email address.",
+      });
     } catch (err) {
-      res.status(500).json({ error: "Failed to send OTP" });
+      res.status(500).json({ success: false, error: "Failed to send OTP" });
     }
   }
 );
@@ -137,17 +112,22 @@ userRouter.put(
 
     try {
       const user = await User.findById(userId);
-      if (!user) return res.status(404).json({ error: "User not found" });
+      if (!user)
+        return res
+          .status(404)
+          .json({ success: false, error: "User not found" });
 
       console.log("User email OTP:", user.emailVerificationOtp);
       console.log("User OTP input:", otp);
 
       if (user.emailVerificationOtp !== otp) {
-        return res.status(400).json({ error: "Invalid OTP" });
+        return res.status(400).json({ success: false, error: "Invalid OTP" });
       }
 
       if (new Date() > user.emailVerificationOtpExpires) {
-        return res.status(400).json({ error: "OTP has expired" });
+        return res
+          .status(400)
+          .json({ success: false, error: "OTP has expired" });
       }
 
       // Set flag true
@@ -164,11 +144,12 @@ userRouter.put(
       console.log("Updated User after OTP verification:", updatedUser);
 
       res.status(200).json({
+        success: true,
         message: "Current email verified. You can now update your email.",
       });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Failed to verify OTP" });
+      res.status(500).json({ success: false, error: "Failed to verify OTP" });
     }
   }
 );
@@ -183,14 +164,19 @@ userRouter.put(
 
     try {
       if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(newEmail)) {
-        return res.status(400).json({ error: "Invalid email format" });
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid email format" });
       }
 
       // Reload the user to ensure we get the updated data
       const user = await User.findById(userId);
       console.log("User before checking flag:", user);
 
-      if (!user) return res.status(404).json({ error: "User not found" });
+      if (!user)
+        return res
+          .status(404)
+          .json({ success: false, error: "User not found" });
 
       // Check if the email change flag is set to true
       console.log(
@@ -199,9 +185,10 @@ userRouter.put(
       );
 
       if (!user.isEmailVerifiedForChange) {
-        return res
-          .status(403)
-          .json({ error: "Verify your current email first" });
+        return res.status(403).json({
+          success: false,
+          error: "Please verify your current email first before updating",
+        });
       }
 
       // Proceed with updating the email
@@ -209,10 +196,23 @@ userRouter.put(
       user.isEmailVerifiedForChange = false; // Reset flag after successful change
       await user.save();
 
-      res.status(200).json({ message: "Email updated successfully" });
+      res.status(200).json({
+        success: true,
+        message: "Email updated successfully",
+      });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Failed to update email" });
+      console.error("Email update error:", error);
+
+      // Handle MongoDB duplicate key error
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          error:
+            "This email is already in use. Please choose a different email.",
+        });
+      }
+
+      res.status(500).json({ success: false, error: "Failed to update email" });
     }
   }
 );

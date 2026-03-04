@@ -89,6 +89,11 @@ export const generateQuiz = async (quizData) => {
     return response.data;
   } catch (error) {
     console.error("Error generating quiz:", error);
+    // If backend returned structured error, surface it
+    if (error.response && error.response.data) {
+      // Throw the backend's error object so the UI can display message
+      throw error.response.data;
+    }
     throw new Error("Failed to generate quiz.");
   }
 };

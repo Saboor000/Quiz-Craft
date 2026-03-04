@@ -186,12 +186,14 @@ const Profile = () => {
       const token = localStorage.getItem("token"); // ✅ Get JWT token
       if (!token) throw new Error("User not authenticated");
 
-      const success = await verifyCurrentEmailOtp(otp, token); // ✅ Pass token here
+      const response = await verifyCurrentEmailOtp(otp); // ✅ Don't pass token, API handles it
 
-      if (success) {
+      if (response && response.success) {
         toast.success("Email verified successfully");
         setShowEmailVerificationModal(false);
         setShowNewEmailModal(true);
+      } else {
+        throw new Error(response?.error || "Failed to verify OTP");
       }
     } catch (error) {
       setError(error.message || "Failed to verify OTP");
@@ -425,11 +427,15 @@ const Profile = () => {
                 </Typography>
                 {userData.isEmailVerified ? (
                   <Tooltip title="Email Verified">
-                    <FaCheck color="#24A148" />
+                    <span>
+                      <FaCheck color="#24A148" />
+                    </span>
                   </Tooltip>
                 ) : (
                   <Tooltip title="Email Not Verified">
-                    <FaTimes color="#dc3545" />
+                    <span>
+                      <FaTimes color="#dc3545" />
+                    </span>
                   </Tooltip>
                 )}
               </Box>

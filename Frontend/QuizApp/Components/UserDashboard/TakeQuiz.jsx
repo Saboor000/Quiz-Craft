@@ -132,15 +132,11 @@ const TakeQuiz = () => {
   }, [quizId, navigate]);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      handleSubmit();
-      return;
-    }
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => prevTime - 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   useEffect(() => {
     const answeredCount = Object.keys(userAnswers).length;

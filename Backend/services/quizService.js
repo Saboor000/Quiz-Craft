@@ -163,39 +163,113 @@ export const handleQuizCreation = async (req, res) => {
       // Handling video URL
     }
 
-    // Handling local video
+    // Handling remote video (YouTube) or other selected video
     else if (selectedVideo) {
       try {
         if (ytdl.validateURL(selectedVideo)) {
-          // Call Flask API to get YouTube transcript
-          const response = await axios.post(
-            "http://localhost:5000/transcript",
-            {
-              video_url: selectedVideo,
+          try {
+            // Call Flask API to get YouTube transcript with a timeout
+            const response = await axios.post(
+              "http://localhost:5000/transcript",
+              { video_url: selectedVideo },
+              { timeout: 30000 } // 30s
+            );
+            console.log("In The Selected Video Backend python Api Hit");
+            inputText = response.data.transcript || "";
+
+            if (!inputText || inputText.trim().length === 0) {
+              throw new Error(
+                "Empty transcript returned from transcript service"
+              );
             }
-          );
-          console.log("In The Selected Video Backend python Api Hit");
-          inputText = response.data.transcript || "No transcript available.";
+          } catch (transcriptErr) {
+            // Log detailed info for debugging
+            console.warn("Transcript service failed:", transcriptErr.message);
+            if (transcriptErr.response) {
+              console.warn(
+                "Transcript service response data:",
+                transcriptErr.response.data
+              );
+            }
+
+            // Fallback: download video and extract audio, then transcribe locally
+            const tempVideoPath = path.join(
+              "temp",
+              `downloaded_video_${Date.now()}.mp4`
+            );
+            const audioFilePath = path.join(
+              "temp",
+              `downloaded_audio_${Date.now()}.wav`
+            );
+
+            try {
+              await downloadOnlineVideo(selectedVideo, tempVideoPath);
+              await extractAudioFromVideo(tempVideoPath, audioFilePath);
+              inputText = await transcribeAudio(audioFilePath);
+
+              // Cleanup if files exist
+              try {
+                if (fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath);
+              } catch (e) {
+                console.warn(e);
+              }
+              try {
+                if (fs.existsSync(audioFilePath)) fs.unlinkSync(audioFilePath);
+              } catch (e) {
+                console.warn(e);
+              }
+
+              if (!inputText || inputText.trim().length === 0) {
+                throw new Error("Fallback transcription returned no text");
+              }
+              console.log("Fallback audio transcription succeeded");
+            } catch (fallbackErr) {
+              console.error(
+                "Fallback audio transcription failed:",
+                fallbackErr
+              );
+              return res.status(500).json({
+                error: `Failed to extract text from the video URL: ${fallbackErr.message}`,
+              });
+            }
+          }
         } else {
-          const tempVideoPath = path.join("temp", "downloaded_video.mp4");
-          const audioFilePath = path.join("temp", "downloaded_audio.wav");
+          // Non-YouTube remote video: download and transcribe
+          const tempVideoPath = path.join(
+            "temp",
+            `downloaded_video_${Date.now()}.mp4`
+          );
+          const audioFilePath = path.join(
+            "temp",
+            `downloaded_audio_${Date.now()}.wav`
+          );
 
-          await downloadOnlineVideo(selectedVideo, tempVideoPath);
-          await extractAudioFromVideo(tempVideoPath, audioFilePath);
-
-          // Optionally: Send audio to another Flask endpoint (if needed), or keep your own transcription logic
-          inputText = await transcribeAudio(audioFilePath); // or integrate Flask for transcription here too
-
-          // Cleanup
-          fs.unlinkSync(tempVideoPath);
-          fs.unlinkSync(audioFilePath);
-          console.log("Not In the Hit Python API Response");
+          try {
+            await downloadOnlineVideo(selectedVideo, tempVideoPath);
+            await extractAudioFromVideo(tempVideoPath, audioFilePath);
+            inputText = await transcribeAudio(audioFilePath);
+            try {
+              if (fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath);
+            } catch (e) {
+              console.warn(e);
+            }
+            try {
+              if (fs.existsSync(audioFilePath)) fs.unlinkSync(audioFilePath);
+            } catch (e) {
+              console.warn(e);
+            }
+          } catch (err) {
+            console.error("Error processing non-YouTube video:", err);
+            return res.status(500).json({
+              error: `Failed to extract text from the video URL: ${err.message}`,
+            });
+          }
         }
       } catch (err) {
         console.error("Error processing video:", err);
-        return res
-          .status(500)
-          .json({ error: "Failed to extract text from the video URL." });
+        return res.status(500).json({
+          error: `Failed to extract text from the video URL: ${err.message}`,
+        });
       }
     } else if (selectedLocalVideo) {
       try {
@@ -316,9 +390,11 @@ export const handleQuizCreation = async (req, res) => {
     });
   } catch (err) {
     console.error("Error creating quiz:", err);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the quiz." });
+    // Include message and stack for easier debugging in development
+    res.status(500).json({
+      error: err.message || "An error occurred while creating the quiz.",
+      ...(err.stack ? { stack: err.stack } : {}),
+    });
   }
 };
 
